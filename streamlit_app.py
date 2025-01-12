@@ -4,15 +4,33 @@ from spotipy import SpotifyOAuth
 import csv
 import random
 
-client_id = "a3bb7b8990ed44dbab8a7f08f2eb35c9"
-client_secret = "c462fd98ef4d4d9494c74a104b65c0d2"
 scope = ["user-library-read", "playlist-read-private", "playlist-modify-private", "user-modify-playback-state"]
 
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
-                                            client_secret=client_secret,
-                                            redirect_uri="http://localhost:1234",
-                                            scope=scope),
-                    retries=0)
+oauth = SpotifyOAuth(client_id=st.secrets["CLIENT_ID"],
+                    client_secret=st.secrets["CLIENT_SECRET"],
+                    redirect_uri=st.secrets["REDIRECT_URI"],
+                    scope=scope)
+
+st.session_state["oauth"] = oauth
+
+auth_url = oauth.get_authorize_url()
+
+link_html = " <a target=\"_self\" href=\"{url}\" >{msg}</a> ".format(
+        url=auth_url,
+        msg="Click me to authenticate!"
+)
+
+params = st.experimental_get_query_params()
+token = None
+if "code" in params:
+    token = params['code'][0]
+
+if not token:
+    st.write(" ".join(["No tokens found for this session. Please log in by",
+                        "clicking the link below."]))
+    st.markdown(link_html, unsafe_allow_html=True)
+
+sp = spotipy.Spotify(auth=oauth)
 
 allLikedSongs = []
 likedSongs = []
@@ -35,7 +53,10 @@ def main():
 
     with st.form("my_form"):
         number = st.number_input("Add _ of Songs: ", step=1)
-        st.form_submit_button()
+        submitted = st.form_submit_button()
+
+    if not submitted:
+        return
     
     # Fill up nonLikedSongs to prevent while loop from exiting immediately
     if nonLikedSongs == []:
@@ -67,6 +88,8 @@ def main():
         csvwriter = csv.writer(csvfile)
         # writing the data rows
         csvwriter.writerow(nonLikedSongs)
+    
+    st.write("Done!")
 
 def refreshLikedSongs():
     global allLikedSongs
