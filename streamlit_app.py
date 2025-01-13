@@ -16,7 +16,7 @@ st.session_state["oauth"] = oauth
 
 auth_url = oauth.get_authorize_url()
 
-link_html = " <a target=\"_self\" href=\"{url}\" >{msg}</a> ".format(
+link_html = ' <a target="_self" href="{url}" >{msg}</a> '.format(
         url=auth_url,
         msg="Click me to authenticate!"
 )
@@ -43,16 +43,17 @@ elif "code" in params:
     st.session_state["code"] = params["code"][0]
     try: 
         token = get_token(st.session_state["oauth"], st.session_state["code"])
+        st.session_state["cached_token"] = token
+        sp = sign_in()
     except:
         st.write("Invalid token found for this session")
         st.markdown(' <a target="_self" href="/" >Click me to Refresh!</a> ', unsafe_allow_html=True)
-    st.session_state["cached_token"] = token
-    sp = sign_in()
 # otherwise, prompt for redirect
 else:
     st.write(" ".join(["No tokens found for this session. Please log in by",
                         "clicking the link below."]))
     st.markdown(link_html, unsafe_allow_html=True)
+    st.markdown(f'[Or in a new tab!]({auth_url})')
 
 allLikedSongs = []
 likedSongs = []
