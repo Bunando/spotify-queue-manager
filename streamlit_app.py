@@ -30,17 +30,22 @@ def get_token(oauth: SpotifyOAuth, code):
     os.remove(".cache")
     return token
 
-params = st.experimental_get_query_params()
-sp = None
 if "cached_token" not in st.session_state:
     st.session_state["cached_token"] = ""
+
+params = st.experimental_get_query_params()
+sp = None
 if st.session_state["cached_token"] != "":
     sp = sign_in()
 # if no token, but code in url, get code, parse token, and sign in
 elif "code" in params:
     # all params stored as lists, see doc for explanation
     st.session_state["code"] = params["code"][0]
-    token = get_token(st.session_state["oauth"], st.session_state["code"])
+    try: 
+        token = get_token(st.session_state["oauth"], st.session_state["code"])
+    except:
+        st.write("Invalid token found for this session")
+        st.markdown('<a href="/" >Click me to Refresh!</a>')
     st.session_state["cached_token"] = token
     sp = sign_in()
 # otherwise, prompt for redirect
