@@ -20,17 +20,30 @@ link_html = " <a target=\"_self\" href=\"{url}\" >{msg}</a> ".format(
         msg="Click me to authenticate!"
 )
 
+def sign_in():
+    sp = spotipy.Spotify(auth=st.session_state["cached_token"])
+    return sp
+
+def get_token(oauth: SpotifyOAuth, code):
+    token = oauth.get_access_token(code, as_dict=False, check_cache=False)
+    return token
+
 params = st.experimental_get_query_params()
 token = None
-if "code" in params:
-    token = params['code'][0]
-
-if not token:
+if st.session_state["cached_token"] != "":
+    sp = sign_in()
+# if no token, but code in url, get code, parse token, and sign in
+elif "code" in params:
+    # all params stored as lists, see doc for explanation
+    st.session_state["code"] = params["code"][0]
+    token = get_token(st.session_state["oauth"], st.session_state["code"])
+    st.session_state["cached_token"] = token
+    sp = sign_in()
+# otherwise, prompt for redirect
+else:
     st.write(" ".join(["No tokens found for this session. Please log in by",
                         "clicking the link below."]))
     st.markdown(link_html, unsafe_allow_html=True)
-
-sp = spotipy.Spotify(auth=oauth)
 
 allLikedSongs = []
 likedSongs = []
