@@ -45,7 +45,7 @@ elif "code" in params:
         token = get_token(st.session_state["oauth"], st.session_state["code"])
     except:
         st.write("Invalid token found for this session")
-        st.markdown('<a href="/" >Click me to Refresh!</a>')
+        st.markdown(' <a target="_self" href="/" >Click me to Refresh!</a> ', unsafe_allow_html=True)
     st.session_state["cached_token"] = token
     sp = sign_in()
 # otherwise, prompt for redirect
