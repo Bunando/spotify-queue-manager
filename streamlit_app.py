@@ -78,7 +78,7 @@ def main():
             nonLikedSongs.extend(row)
 
     with st.form("my_form"):
-        number = st.number_input("Add _ of Songs: ", step=1)
+        number = st.number_input("Number of Songs to Add: ", step=2)
         submitted = st.form_submit_button()
 
     if not submitted:
