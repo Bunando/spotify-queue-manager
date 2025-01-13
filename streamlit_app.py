@@ -127,7 +127,6 @@ def refreshNonLikedSongs():
     if allLikedSongs == []:
         allLikedSongs = getLikedSongs()
     nonLikedSongs = [song for song in playlistSongs if song not in allLikedSongs]
-    st.write(len(nonLikedSongs))
 
     # Add potential songs to list
     st.write("Getting Additional Songs...")
