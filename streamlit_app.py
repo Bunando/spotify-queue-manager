@@ -3,6 +3,7 @@ import spotipy
 from spotipy import SpotifyOAuth
 import csv
 import random
+import os
 
 scope = ["user-library-read", "playlist-read-private", "playlist-modify-private", "user-modify-playback-state"]
 
@@ -26,10 +27,13 @@ def sign_in():
 
 def get_token(oauth: SpotifyOAuth, code):
     token = oauth.get_access_token(code, as_dict=False, check_cache=False)
+    os.remove(".cache")
     return token
 
 params = st.experimental_get_query_params()
-token = None
+sp = None
+if "cached_token" not in st.session_state:
+    st.session_state["cached_token"] = ""
 if st.session_state["cached_token"] != "":
     sp = sign_in()
 # if no token, but code in url, get code, parse token, and sign in
@@ -53,6 +57,9 @@ def main():
     global allLikedSongs
     global likedSongs
     global nonLikedSongs
+
+    if not sp:
+        return
     
     with open('Liked Songs.csv', 'r') as csvfile:
         csvreader = csv.reader(csvfile)
